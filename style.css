@@ -23,6 +23,29 @@ body.dark-mode {
     --border-color: #2a2a40;
 }
 
+/* Enneagram Images Adjustments */
+.ennea-list-img {
+    width: 100px;
+    height: auto;
+    margin: 0 auto 10px;
+    display: block;
+    mix-blend-mode: multiply;
+    /* Default for Light Mode (Black lines) */
+}
+
+body.dark-mode .ennea-list-img {
+    filter: invert(1);
+    mix-blend-mode: screen;
+    /* Dark Mode (White lines) */
+}
+
+.detail-hero .ennea-detail-img {
+    filter: none;
+    /* Remove drop-shadow and invert */
+    mix-blend-mode: multiply;
+    /* White becomes transparent, Black stays Black */
+}
+
 /* Base Styles */
 * {
     box-sizing: border-box;
@@ -571,4 +594,338 @@ body {
     font-size: 0.8rem;
     opacity: 0.6;
     line-height: 1.4;
+}
+
+/* --- Mobile Responsive Rules --- */
+@media (max-width: 768px) {
+
+    /* Header & Nav */
+    .main-header {
+        padding: 0.8rem 1rem;
+    }
+
+    .header-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav-container {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Hero */
+    .hero h1 {
+        font-size: 2rem;
+        padding: 0 10px;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        padding: 0 15px;
+    }
+
+    .test-card {
+        width: 100%;
+        margin: 0 20px;
+        max-width: 350px;
+    }
+
+    /* Question Interface */
+    .question-card {
+        padding: 1.5rem 10px;
+    }
+
+    .question-text {
+        font-size: 1.1rem;
+    }
+
+    .options-container {
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        padding-top: 25px;
+        /* Space for labels */
+    }
+
+    .option-label {
+        display: block !important;
+        /* Force show */
+        position: absolute;
+        top: 0;
+        font-size: 0.8rem;
+    }
+
+    .agree-label {
+        left: 10px;
+    }
+
+    .disagree-label {
+        right: 10px;
+    }
+
+    .radio-container {
+        gap: 8px;
+        /* Reduce gap */
+    }
+
+    /* Resize circles */
+    .size-3 {
+        width: 35px;
+        height: 35px;
+    }
+
+    .size-2 {
+        width: 28px;
+        height: 28px;
+    }
+
+    .size-1 {
+        width: 22px;
+        height: 22px;
+    }
+
+    .size-0 {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Results */
+    .results-container {
+        padding: 0 10px;
+    }
+
+    #result-type-title {
+        font-size: 2.5rem !important;
+    }
+
+    /* MBTI Bars Stacked */
+    .mbti-bar-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "labelL labelR"
+            "bar bar";
+        gap: 5px;
+        margin-bottom: 1.5rem;
+    }
+
+    .mbti-trait {
+        width: auto;
+        font-size: 0.85rem;
+    }
+
+    .mbti-trait:first-child {
+        grid-area: labelL;
+        text-align: left;
+    }
+
+    .mbti-trait:last-child {
+        grid-area: labelR;
+        text-align: right;
+    }
+
+    .mbti-bar-container {
+        grid-area: bar;
+        width: 100%;
+    }
+
+    /* Types Grid */
+    .type-list {
+        grid-template-columns: 1fr;
+        /* Single column */
+    }
+}
+
+/* --- Detailed View Styles (Migrated) --- */
+
+/* Hero Banner */
+.detail-hero {
+    border-radius: 20px;
+    padding: 3rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.detail-hero h1 {
+    font-family: 'Lora', serif;
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.detail-hero h2 {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+.detail-hero img {
+    height: 250px;
+    margin-top: 2rem;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Content Sections */
+.content-section {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.content-section h3 {
+    font-family: 'Lora', serif;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+    position: relative;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.list-box {
+    background: var(--bg-color);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+}
+
+.list-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.list-box li {
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.list-box li::before {
+    content: "•";
+    color: var(--primary-color);
+    font-size: 2rem;
+    position: absolute;
+    left: 0;
+    top: -10px;
+}
+
+/* Group Colors */
+.bg-analysts {
+    background: linear-gradient(135deg, #88619a, #684a75);
+    --accent: #88619a;
+}
+
+.bg-diplomats {
+    background: linear-gradient(135deg, #33a474, #267a56);
+    --accent: #33a474;
+}
+
+.bg-sentinels {
+    background: linear-gradient(135deg, #4298B4, #32738a);
+    --accent: #4298B4;
+}
+
+.bg-explorers {
+    background: linear-gradient(135deg, #e4a23b, #c2882e);
+    --accent: #e4a23b;
+}
+
+.text-analysts {
+    color: #88619a;
+}
+
+.text-diplomats {
+    color: #33a474;
+}
+
+.text-sentinels {
+    color: #4298B4;
+}
+
+.text-explorers {
+    color: #e4a23b;
+}
+
+/* Detail Nav specific */
+.detail-nav {
+    margin-bottom: 2rem;
+}
+
+.back-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.back-btn:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+/* Mobile Adjustment for Detail Hero */
+@media (max-width: 768px) {
+    .detail-hero {
+        padding: 2rem 1rem;
+    }
+
+    .detail-hero h1 {
+        font-size: 2.2rem;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+
+    .detail-hero h2 {
+        font-size: 1.2rem;
+    }
+
+    .detail-hero img {
+        height: 180px;
+    }
+
+    .content-section {
+        padding: 1.5rem;
+    }
+
+    .content-section h3 {
+        font-size: 1.5rem;
+    }
 }

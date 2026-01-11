@@ -1,77 +1,5 @@
 import { enneagramQuestions, mbtiQuestions } from './questions.js';
-
-const translations = {
-    fr: {
-        title: "PersonnalityTest",
-        navHome: "Accueil",
-        navTypes: "Types",
-        heroTitle: "Découvrez qui vous êtes vraiment",
-        heroSubtitle: "Explorez votre personnalité avec nos tests Ennéagramme et MBTI.",
-        cardStart: "Commencer le test",
-        enneagramTitle: "Ennéagramme",
-        enneagramDesc: "Découvrez votre type dominant parmi les 9 profils de l'Ennéagramme.",
-        mbtiTitle: "16 Personnalités",
-        mbtiDesc: "Explorez les 16 types psychologiques et leurs nuances.",
-        testTitleEnnea: "Test Ennéagramme",
-        testTitleMbti: "Test 16 Personnalités",
-        btnPrev: "Précédent",
-        btnNext: "Suivant",
-        btnResults: "Voir les Résultats",
-        agree: "D'accord",
-        disagree: "Pas d'accord",
-        alertAnswerAll: "Veuillez répondre à toutes les questions.",
-        resultTitle: "Votre Résultat",
-        resultDesc: "Votre type de personnalité est",
-        certifBtn: "Certificat",
-        homeBtn: "Retour à l'accueil",
-        detailsTitle: "Détails par Type",
-        typesTitle: "Types de Personnalité",
-        tab16P: "16 Personnalités",
-        tabEnnea: "Ennéagramme",
-        analysts: "Les Analystes",
-        diplomats: "Les Diplomates",
-        sentinels: "Les Sentinelles",
-        explorers: "Les Explorateurs",
-        readMore: "En savoir plus",
-        madeOn: "Réalisé le :",
-        testLabel: "Test : "
-    },
-    en: {
-        title: "PersonnalityTest",
-        navHome: "Home",
-        navTypes: "Types",
-        heroTitle: "Discover who you really are",
-        heroSubtitle: "Explore your personality with our Enneagram and MBTI tests.",
-        cardStart: "Start Test",
-        enneagramTitle: "Enneagram",
-        enneagramDesc: "Discover your dominant type among the 9 Enneagram profiles.",
-        mbtiTitle: "16 Personalities",
-        mbtiDesc: "Explore the 16 psychological types and their nuances.",
-        testTitleEnnea: "Enneagram Test",
-        testTitleMbti: "16 Personalities Test",
-        btnPrev: "Previous",
-        btnNext: "Next",
-        btnResults: "See Results",
-        agree: "Agree",
-        disagree: "Disagree",
-        alertAnswerAll: "Please answer all questions.",
-        resultTitle: "Your Result",
-        resultDesc: "Your personality type is",
-        certifBtn: "Certificate",
-        homeBtn: "Back to Home",
-        detailsTitle: "Details by Type",
-        typesTitle: "Personality Types",
-        tab16P: "16 Personalities",
-        tabEnnea: "Enneagram",
-        analysts: "Analysts",
-        diplomats: "Diplomats",
-        sentinels: "Sentinels",
-        explorers: "Explorers",
-        readMore: "Read More",
-        madeOn: "Completed on:",
-        testLabel: "Test: "
-    }
-};
+import { translations, mbtiData, enneaTypes } from './data.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // State
@@ -82,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPage: 0,
         questionsPerPage: 6,
         answers: {},
-        totalQuestions: 0
+        totalQuestions: 0,
+        currentDetailType: null
     };
 
     // DOM Elements
@@ -90,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
         landing: document.getElementById('landing-view'),
         test: document.getElementById('test-view'),
         results: document.getElementById('results-view'),
-        types: document.getElementById('types-view')
+        types: document.getElementById('types-view'),
+        detail: document.getElementById('detail-view')
     };
 
     const container = document.getElementById('questions-container');
@@ -134,6 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('test-title-display').innerText = state.currentTest === 'enneagram' ? t('testTitleEnnea') : t('testTitleMbti');
             renderPage();
         }
+
+        // If detail view is active, re-render details
+        if (!views.detail.classList.contains('hidden') && state.currentDetailType) {
+            showTypeDetail(state.currentDetailType);
+        }
     }
 
     function setupNavigation() {
@@ -154,6 +89,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.lang = state.lang === 'fr' ? 'en' : 'fr';
                 localStorage.setItem('lang', state.lang);
                 updateLanguage();
+            });
+        }
+
+        // Detail View Back Button
+        const backToTypesBtn = document.getElementById('back-to-types-btn');
+        if (backToTypesBtn) {
+            backToTypesBtn.addEventListener('click', () => {
+                switchView('types');
+                window.scrollTo(0, 0);
             });
         }
     }
@@ -458,18 +402,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Detailed Link logic
         const typeBase = typeStr.split('-')[0].toLowerCase();
-        let linkUrl;
+        // Create Read More button
+        const readMoreBtn = document.createElement('button');
+        readMoreBtn.className = 'btn-secondary';
+        readMoreBtn.style.marginTop = '10px';
+        readMoreBtn.textContent = t('readMore');
+        readMoreBtn.addEventListener('click', () => {
+            showTypeDetail(typeStr);
+        });
 
-        if (state.lang === 'fr') {
-            linkUrl = `personnalite/mbti/fr/types-de-personnalite.html#${typeBase.toUpperCase()}`;
-        } else {
-            // Fallback to official site for English
-            linkUrl = `https://www.16personalities.com/personality-${typeBase}`;
-        }
+        const descP = document.createElement('p');
+        descP.innerHTML = `${t('resultDesc')} <strong>${typeStr}</strong>.`;
 
-        const descHTML = `<p>${t('resultDesc')} <strong>${typeStr}</strong>.</p>
-                          <a href="${linkUrl}" target="_blank" class="btn-secondary" style="margin-top: 10px; display: inline-block;">${t('readMore')}</a>`;
-        document.getElementById('result-description').innerHTML = descHTML;
+        const resultDescContainer = document.getElementById('result-description');
+        resultDescContainer.innerHTML = '';
+        resultDescContainer.appendChild(descP);
+        resultDescContainer.appendChild(readMoreBtn);
 
         // Render Bars
         renderMBTIVisuals(scores);
@@ -692,34 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function populateTypes() {
-        // IDs and Data
-        const mbtiData = {
-            analysts: [
-                { name: 'INTJ', labelFr: 'Architecte', labelEn: 'Architect', img: 'intj-architect.svg', descFr: "Penseur imaginatif et stratège, avec un plan pour tout.", descEn: "Imaginative and strategic thinker, with a plan for everything." },
-                { name: 'INTP', labelFr: 'Logicien', labelEn: 'Logician', img: 'intp-logician.svg', descFr: "Inventeur innovateur avec une soif de connaissances.", descEn: "Innovative inventor with an unquenchable thirst for knowledge." },
-                { name: 'ENTJ', labelFr: 'Commandant', labelEn: 'Commander', img: 'entj-commander.svg', descFr: "Leader audacieux et imaginatif.", descEn: "Bold, imaginative and strong-willed leader." },
-                { name: 'ENTP', labelFr: 'Innovateur', labelEn: 'Debater', img: 'entp-debater.svg', descFr: "Penseur astucieux et curieux.", descEn: "Smart and curious thinker who cannot resist an intellectual challenge." }
-            ],
-            diplomats: [
-                { name: 'INFJ', labelFr: 'Avocat', labelEn: 'Advocate', img: 'infj-advocate.svg', descFr: "Idéaliste calme et mystique, mais très inspirant.", descEn: "Quiet and mystical, yet very inspiring and tireless idealist." },
-                { name: 'INFP', labelFr: 'Médiateur', labelEn: 'Mediator', img: 'infp-mediator.svg', descFr: "Personne poétique, gentille et altruiste.", descEn: "Poetic, kind and altruistic person, always eager to help a good cause." },
-                { name: 'ENFJ', labelFr: 'Protagoniste', labelEn: 'Protagonist', img: 'enfj-protagonist.svg', descFr: "Leader charismatique et inspirant.", descEn: "Charismatic and inspiring leader, able to mesmerize their listeners." },
-                { name: 'ENFP', labelFr: 'Inspirateur', labelEn: 'Campaigner', img: 'enfp-campaigner.svg', descFr: "Esprit libre enthousiaste et créatif.", descEn: "Enthusiastic, creative and sociable free spirit." }
-            ],
-            sentinels: [
-                { name: 'ISTJ', labelFr: 'Logisticien', labelEn: 'Logistician', img: 'istj-logistician.svg', descFr: "Individu pragmatique et intéressé par les faits.", descEn: "Practical and fact-minded individual, whose reliability cannot be doubted." },
-                { name: 'ISFJ', labelFr: 'Défenseur', labelEn: 'Defender', img: 'isfj-defender.svg', descFr: "Protecteur très dévoué et chaleureux.", descEn: "Very dedicated and warm protector, always ready to defend their loved ones." },
-                { name: 'ESTJ', labelFr: 'Directeur', labelEn: 'Executive', img: 'estj-executive.svg', descFr: "Administrateur excellent, inégalé dans la gestion.", descEn: "Excellent administrator, unsurpassed at managing things or people." },
-                { name: 'ESFJ', labelFr: 'Consul', labelEn: 'Consul', img: 'esfj-consul.svg', descFr: "Personne extraordinairement attentionnée et sociale.", descEn: "Extraordinarily caring, social and popular person." }
-            ],
-            explorers: [
-                { name: 'ISTP', labelFr: 'Virtuose', labelEn: 'Virtuoso', img: 'istp-virtuoso.svg', descFr: "Expérimentateur audacieux et pratique.", descEn: "Bold and practical experimenter, master of all kinds of tools." },
-                { name: 'ISFP', labelFr: 'Aventurier', labelEn: 'Adventurer', img: 'isfp-adventurer.svg', descFr: "Artiste flexible et charmant.", descEn: "Flexible and charming artist, always ready to explore and experience something new." },
-                { name: 'ESTP', labelFr: 'Entrepreneur', labelEn: 'Entrepreneur', img: 'estp-entrepreneur.svg', descFr: "Personne intelligente, énergique et perceptrice.", descEn: "Smart, energetic and very perceptive person, who truly enjoys living on the edge." },
-                { name: 'ESFP', labelFr: 'Amuseur', labelEn: 'Entertainer', img: 'esfp-entertainer.svg', descFr: "Amuseur spontané, énergique et enthousiaste.", descEn: "Spontaneous, energetic and enthusiastic entertainer - life is never boring around them." }
-            ]
-        };
-
         const baseUrl = 'media/';
 
         for (const [group, types] of Object.entries(mbtiData)) {
@@ -731,26 +651,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (header) header.innerText = t(group);
 
             list.innerHTML = '';
+            list.innerHTML = '';
             types.forEach(tData => {
-                const item = document.createElement('a');
-                item.href = `https://www.16personalities.com/${state.lang === 'fr' ? 'fr' : 'en'}/${state.lang === 'fr' ? 'la-personnalite' : 'personality'}-${tData.name.toLowerCase()}`;
-
-                // Override with local if needed? User wants local link in result, but here generic link is fine.
-                // Keeping external for types overview.
-                item.target = '_blank';
+                const item = document.createElement('div'); // Changed to div for SPA
                 item.className = 'type-item';
+                item.style.cursor = 'pointer';
 
                 const label = state.lang === 'fr' ? tData.labelFr : tData.labelEn;
                 const desc = state.lang === 'fr' ? tData.descFr : tData.descEn;
 
                 item.innerHTML = `
                     <div style="height: 80px; overflow:hidden; margin: 0 auto 10px;">
-                        <img src="${baseUrl}${tData.img}" alt="${tData.name}" style="height: 100%;">
+                        <img src="media/${tData.img}" alt="${tData.name}" style="height: 100%;">
                     </div>
                     <h4>${label}</h4>
                     <span>${tData.name}</span>
                     <p class="type-desc">${desc}</p>
                 `;
+
+                // Add Click Handler
+                item.addEventListener('click', () => {
+                    showTypeDetail(tData.name);
+                });
+
                 list.appendChild(item);
             });
         }
@@ -759,19 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const enneaList = document.getElementById('list-enneagram');
         if (enneaList) {
             enneaList.innerHTML = '';
-            // Enneagram Data
-            const enneaTypes = [
-                { id: 1, nameFr: "Le Perfectionniste", nameEn: "The Reformer", descFr: "Le type rationnel et idéaliste.", descEn: "The Rational, Idealistic Type." },
-                { id: 2, nameFr: "L'Altruiste", nameEn: "The Helper", descFr: "Le type soucieux des autres.", descEn: "The Caring, Interpersonal Type." },
-                { id: 3, nameFr: "Le Battant", nameEn: "The Achiever", descFr: "Le type pragmatique orienté succès.", descEn: "The Success-Oriented, Pragmatic Type." },
-                { id: 4, nameFr: "Le Romantique", nameEn: "The Individualist", descFr: "Le type sensible et retiré.", descEn: "The Sensitive, Withdrawn Type." },
-                { id: 5, nameFr: "L'Observateur", nameEn: "The Investigator", descFr: "Le type intense et cérébral.", descEn: "The Intense, Cerebral Type." },
-                { id: 6, nameFr: "Le Loyal-Sceptique", nameEn: "The Loyalist", descFr: "Le type engagé et orienté sécurité.", descEn: "The Committed, Security-Oriented Type." },
-                { id: 7, nameFr: "L'Épicurien", nameEn: "The Enthusiast", descFr: "Le type occupé et spontané.", descEn: "The Busy, Fun-Loving Type." },
-                { id: 8, nameFr: "Le Protecteur", nameEn: "The Challenger", descFr: "Le type puissant et dominateur.", descEn: "The Powerful, Dominating Type." },
-                { id: 9, nameFr: "Le Médiateur", nameEn: "The Peacemaker", descFr: "Le type accommodant et modeste.", descEn: "The Easygoing, Self-Effacing Type." }
-            ];
-
             enneaTypes.forEach(tData => {
                 const item = document.createElement('div');
                 item.className = 'type-item';
@@ -780,13 +690,141 @@ document.addEventListener('DOMContentLoaded', () => {
                 const desc = state.lang === 'fr' ? tData.descFr : tData.descEn;
 
                 item.innerHTML = `
-                    <div style="font-size: 3rem; color: #4298B4; margin-bottom: 10px; font-family: 'Lora', serif;">${tData.id}</div>
-                    <h4>${name}</h4>
-                    <p class="type-desc">${desc}</p>
+                    <div style="font-size: 3rem; color: #4298B4; margin-bottom: 10px; font-family: 'Lora', serif; cursor: pointer;">${tData.id}</div>
+                    <img src="media/${tData.img}" alt="${name}" class="ennea-list-img">
+                    <div style="cursor: pointer;">
+                        <h4>${name}</h4>
+                        <p class="type-desc">${desc}</p>
+                    </div>
                 `;
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    showTypeDetail(tData.nameEn); // Using nameEn as identifier
+                });
                 enneaList.appendChild(item);
             });
         }
+    }
+
+    // --- Detail View Logic (SPA) ---
+    function showTypeDetail(typeName) {
+        const detailContent = document.getElementById('detail-content');
+        if (!detailContent) return;
+
+        // Save current type in state for language switching
+        state.currentDetailType = typeName;
+
+        // Find type data
+        let foundType = null;
+        let groupName = '';
+
+        for (const [group, types] of Object.entries(mbtiData)) {
+            const match = types.find(t => t.name === typeName);
+            if (match) {
+                foundType = match;
+                groupName = group;
+                break;
+            }
+        }
+
+        if (!foundType) {
+            // Check Enneagram
+            const enneaMatch = enneaTypes.find(t => t.nameEn === typeName || t.nameFr === typeName);
+            if (enneaMatch) {
+                foundType = enneaMatch;
+                groupName = 'enneagram';
+            }
+        }
+
+        if (!foundType) return;
+
+        // Build HTML
+        let label = state.lang === 'fr' ? foundType.labelFr : foundType.labelEn;
+        if (!label && foundType.id) {
+            label = `${foundType.id}`; // Enneagram just shows the number
+        }
+
+        const details = foundType.details[state.lang];
+
+        const groupColors = {
+            'analysts': 'bg-analysts',
+            'diplomats': 'bg-diplomats',
+            'sentinels': 'bg-sentinels',
+            'explorers': 'bg-explorers',
+            'enneagram': 'bg-sentinels' // Reusing a nice blue color for Enneagram
+        };
+        const groupClass = groupColors[groupName] || '';
+
+        // Shared Content Builders
+        let sectionsHtml = '';
+
+        // 1. New Structure (with sections)
+        if (details.sections) {
+            if (details.quote) {
+                sectionsHtml += `
+                    <div class="content-section" style="text-align: center; font-style: italic;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">"${details.quote.text}"</h3>
+                        <p style="opacity: 0.8;">— ${details.quote.author}</p>
+                    </div>
+                `;
+            }
+            details.sections.forEach(sec => {
+                const title = sec.title || '';
+                const content = sec.content || '';
+                sectionsHtml += `
+                    <div class="content-section">
+                        <h3 style="color: var(--primary-color);">${title}</h3>
+                        <p>${content.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            });
+        }
+        // 2. Old Structure (Fallback)
+        else {
+            sectionsHtml += `
+                <div class="content-section">
+                    <h3 style="color: var(--primary-color);">${t('intro') || 'Introduction'}</h3>
+                    <p>${details.intro}</p>
+                </div>
+
+                <div class="content-section" style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="color: #33a474;"><i class="fa-solid fa-check"></i> ${t('strengths') || 'Forces'}</h3>
+                        <div class="list-box">
+                            <ul>${details.strengths ? details.strengths.map(s => `<li>${s}</li>`).join('') : ''}</ul>
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="color: #e4a23b;"><i class="fa-solid fa-triangle-exclamation"></i> ${t('weaknesses') || 'Faiblesses'}</h3>
+                        <div class="list-box">
+                            <ul>${details.weaknesses ? details.weaknesses.map(w => `<li>${w}</li>`).join('') : ''}</ul>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="content-section">
+                    <h3 style="color: #d63384;"><i class="fa-solid fa-heart"></i> ${t('romantic') || 'Relations'}</h3>
+                    <p>${details.romantic}</p>
+                </div>
+
+                <div class="content-section">
+                    <h3 style="color: var(--primary-color);"><i class="fa-solid fa-briefcase"></i> ${t('career') || 'Carrière'}</h3>
+                    <p>${details.career}</p>
+                </div>
+            `;
+        }
+
+        detailContent.innerHTML = `
+            <div class="detail-hero ${groupClass}">
+                 ${foundType.id ? `<div style="font-size: 6rem; color: white; opacity: 0.9; margin-bottom: 0.5rem; font-family: 'Lora', serif;">${label}</div>` : `<h1>${label}</h1>`}
+                ${foundType.img ? `<img src="media/${foundType.img}" alt="${label}" class="${groupName === 'enneagram' ? 'ennea-detail-img' : ''}">` : ''}
+                <h2>${foundType.name || foundType.nameEn}</h2>
+            </div>
+            ${sectionsHtml}
+        `;
+
+        switchView('detail');
+        window.scrollTo(0, 0);
     }
 
 });
