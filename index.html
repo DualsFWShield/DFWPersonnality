@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-t="title">PersonnalityTest</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto;">
+            <div class="logo">
+                <i class="fa-solid fa-fingerprint"></i> <span data-t="title">PersonnalityTest</span>
+            </div>
+            <nav class="nav-container">
+                <button class="nav-btn active" id="nav-home-btn" data-t="navHome">Accueil</button>
+                <button class="nav-btn" id="nav-types-btn" data-t="navTypes">Types</button>
+                <div class="controls" style="display: flex; gap: 10px; align-items: center; margin-left: 15px;">
+                    <button id="lang-toggle" class="icon-btn" style="font-weight: bold; font-size: 0.8rem;">FR</button>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="app">
+        <!-- LANDING VIEW -->
+        <section id="landing-view" class="view active">
+            <div class="hero">
+                <h1 data-t="heroTitle">Découvrez qui vous êtes vraiment</h1>
+                <p data-t="heroSubtitle" class="subtitle">Explorez votre personnalité avec nos tests Ennéagramme et MBTI.</p>
+                
+                <div class="test-selection-container">
+                    <div class="test-card">
+                        <div class="card-icon enneagram-icon"><i class="fa-solid fa-shapes"></i></div>
+                        <h2 data-t="enneagramTitle">Ennéagramme</h2>
+                        <p data-t="enneagramDesc">Découvrez votre type dominant parmi les 9 profils de l'Ennéagramme.</p>
+                        <button class="btn-primary start-test-btn" data-test="enneagram" data-t="cardStart">Commencer le test</button>
+                    </div>
+                    <div class="test-card">
+                        <div class="card-icon mbti-icon"><i class="fa-solid fa-people-arrows"></i></div>
+                        <h2 data-t="mbtiTitle">16 Personnalités</h2>
+                        <p data-t="mbtiDesc">Explorez les 16 types psychologiques et leurs nuances.</p>
+                        <button class="btn-primary start-test-btn" data-test="mbti" data-t="cardStart">Commencer le test</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEST VIEW -->
+        <section id="test-view" class="view hidden">
+            <div class="test-header">
+                <h2 id="test-title-display">Test</h2>
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progress-bar"></div>
+                    </div>
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
+
+            <div id="questions-container">
+                <!-- Questions injected here -->
+            </div>
+
+            <div class="test-footer">
+                <button class="btn-secondary" id="prev-page-btn" data-t="btnPrev">Précédent</button>
+                <button class="btn-primary" id="next-page-btn" data-t="btnNext">Suivant</button>
+            </div>
+        </section>
+
+        <!-- RESULTS VIEW -->
+        <section id="results-view" class="view hidden">
+            <div class="results-container">
+                <h2 data-t="resultTitle" style="margin-bottom: 2rem;">Votre Résultat</h2>
+                <div class="main-result" style="margin-bottom: 3rem;">
+                    <h1 id="result-type-title" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;">Type X</h1>
+                    <div id="result-description" class="result-description" style="font-size: 1.2rem;"></div>
+                </div>
+
+                <!-- Enneagram Visuals -->
+                <div id="enneagram-visuals" class="results-visualization hidden">
+                    <div class="chart-wrapper">
+                        <canvas id="resultsCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- MBTI Visuals -->
+                <div id="mbti-visuals" class="results-visualization hidden">
+                    <!-- Bars injected here -->
+                </div>
+
+                <div id="detailed-scores">
+                    <!-- Details injected here -->
+                </div>
+
+                <div class="test-footer" style="gap: 20px;">
+                    <button class="btn-primary" id="download-btn"><i class="fa-solid fa-file-pdf"></i> <span data-t="certifBtn">Certificat</span></button>
+                    <button class="btn-secondary" onclick="location.reload()"><i class="fa-solid fa-rotate-left"></i> <span data-t="homeBtn">Retour à l'accueil</span></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TYPES INFO VIEW -->
+        <section id="types-view" class="view hidden">
+            <div class="types-header">
+                <h2 data-t="typesTitle">Types de Personnalité</h2>
+                <div class="types-tabs">
+                    <button class="tab-btn active" data-target="mbti-types" data-t="tab16P">16 Personnalités</button>
+                    <button class="tab-btn" data-target="enneagram-types" data-t="tabEnnea">Ennéagramme</button>
+                </div>
+            </div>
+
+            <div id="mbti-types" class="types-grid active">
+                <div class="type-group">
+                    <h3 data-t="analysts">Les Analystes</h3>
+                    <div class="type-list" id="list-analysts"></div>
+                </div>
+                
+                <div class="type-group">
+                    <h3 data-t="diplomats">Les Diplomates</h3>
+                    <div class="type-list" id="list-diplomats"></div>
+                </div>
+                
+                <div class="type-group">
+                    <h3 data-t="sentinels">Les Sentinelles</h3>
+                    <div class="type-list" id="list-sentinels"></div>
+                </div>
+                
+                <div class="type-group">
+                    <h3 data-t="explorers">Les Explorateurs</h3>
+                    <div class="type-list" id="list-explorers"></div>
+                </div>
+            </div>
+
+            <div id="enneagram-types" class="types-grid hidden">
+                <div class="type-list" id="list-enneagram"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
